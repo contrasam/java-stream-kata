@@ -12,6 +12,7 @@ import java.nio.file.Paths;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -50,7 +51,7 @@ class BasicsJava11Test {
     @DisplayName("Task: Get all fruits except BANANA")
     void task1() {
         final List<Fruit> everythingExceptBanana = FRUITS.stream()
-                // TODO: put your answer here
+                .filter(fruit -> !fruit.equals(BANANA))
                 .collect(toUnmodifiableList());
 
         assertThat(everythingExceptBanana)
@@ -75,7 +76,11 @@ class BasicsJava11Test {
         final String givenFruitList = Files.readString(Paths.get(resource));
 
         // TODO: convert givenFruitList to list using Streams
-        final List<Fruit> actualFruitList = null;
+        final List<Fruit> actualFruitList = givenFruitList
+                .lines()
+                .map(line -> line.split(","))
+                .map(arr -> new Fruit(arr[0], Integer.parseInt(arr[1])))
+                .collect(Collectors.toList());
 
         assertThat(actualFruitList)
                 .containsExactlyInAnyOrderElementsOf(FRUITS);

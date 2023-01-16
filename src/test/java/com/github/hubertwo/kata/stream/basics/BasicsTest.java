@@ -9,9 +9,10 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.function.ToIntFunction;
 import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
-import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.*;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
@@ -53,7 +54,10 @@ class BasicsTest {
     @Test
     @DisplayName("Task: Find 2 fruits with biggest amount of calories")
     void task1() {
-        List<Fruit> mostCaloricFruits = FRUITS.stream().collect(toList()); // TODO:  FRUITS.stream()
+        List<Fruit> mostCaloricFruits = FRUITS.stream()
+                .sorted(Comparator.comparingInt(Fruit::getCalories).reversed())
+                .limit(2)
+                .collect(Collectors.toList());
 
         assertThat(mostCaloricFruits).containsExactly(PAPAYA, MANGO);
     }
@@ -66,7 +70,10 @@ class BasicsTest {
     @Test
     @DisplayName("Task: Take half of each fruit and get the sum of calories")
     void task2() {
-        final int sumOfCalories = 0; // TODO: FRUITS.stream()
+        final int sumOfCalories = FRUITS
+                .stream()
+                .mapToInt(f -> f.getCalories() / 2)
+                .sum();
 
         assertThat(sumOfCalories).isEqualTo(206);
     }
@@ -83,7 +90,11 @@ class BasicsTest {
     @Test
     @DisplayName("Task: Group fruits by first letter")
     void task3() {
-        final Map<Character, Set<Fruit>> mapOfFruits = Collections.emptyMap(); // TODO: FRUITS.stream()
+        final Map<Character, Set<Fruit>> mapOfFruits = FRUITS.stream()
+                .collect(Collectors.groupingBy(
+                        (f) -> f.getName().charAt(0),
+                        toSet()
+                ));
 
         assertThat(mapOfFruits.keySet()).contains('B', 'K', 'M', 'P');
         assertThat(mapOfFruits.get('B')).hasSize(1);
@@ -117,7 +128,9 @@ class BasicsTest {
                 List.of(MANGO, PEACH)
         );
 
-        final List<Fruit> basketWithAllFruits = Collections.emptyList(); // TODO: fruitBaskets.stream()
+        final List<Fruit> basketWithAllFruits = fruitBaskets.stream()
+                .flatMap(Collection::stream)
+                .collect(Collectors.toUnmodifiableList());
 
         assertThat(basketWithAllFruits).contains(BANANA, PAPAYA, MANGO, PEACH);
         assertThat(basketWithAllFruits).doesNotContain(KIWI);
@@ -133,7 +146,8 @@ class BasicsTest {
     void task5() {
         final List<Fruit> basket = List.of(MANGO, PAPAYA, MANGO, PEACH, KIWI, KIWI, KIWI);
 
-        final Map<Fruit, Long> countedFruit = Collections.emptyMap(); //  TODO: basket.stream()
+        final Map<Fruit, Long> countedFruit = basket.stream()
+                .collect(Collectors.groupingBy(Function.identity(), summingLong(x -> 1)));
 
         assertThat(countedFruit.keySet()).contains(MANGO, PAPAYA, PEACH, KIWI);
 
@@ -155,7 +169,8 @@ class BasicsTest {
     @Test
     @DisplayName("Task: Mix all fruits together and construct one, big, new Fruit")
     void task6() {
-        final Fruit bigJuicyFruit = null; // TODO: FRUITS.stream()
+        final Fruit bigJuicyFruit = FRUITS.stream()
+                .reduce(new Fruit("BigJuicyFruit", 0), (f1, f2) -> new Fruit(f1.getName(), f1.getCalories() + f2.getCalories()));
 
         assertThat(bigJuicyFruit).isNotNull();
         assertThat(bigJuicyFruit.getCalories()).isEqualTo(415);
@@ -183,7 +198,7 @@ class BasicsTest {
             }
         };
 
-        final Stream<Fruit> infiniteStreamOfFruits = Stream.empty(); // TODO: Stream.
+        final Stream<Fruit> infiniteStreamOfFruits = Stream.generate(randomFruitSupplier);
 
 
         List<Fruit> pickedFruits = infiniteStreamOfFruits
@@ -210,7 +225,12 @@ class BasicsTest {
                 .sorted(Comparator.comparing(Fruit::getName))
                 .collect(toList());
 
-        List<Fruit> filteredFruits = fruitList; // TODO: change to stream.
+        List<Fruit> filteredFruits = IntStream
+                .range(0, fruitList.size())
+                .filter(i -> i % 2 != 0)
+                .mapToObj(fruitList::get)
+                .collect(Collectors.toList());
+
 
         assertThat(filteredFruits).hasSize(2);
         assertThat(filteredFruits).containsExactly(KIWI, PAPAYA);

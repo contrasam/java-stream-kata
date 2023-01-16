@@ -4,6 +4,9 @@ import org.assertj.core.data.Percentage;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+import java.util.stream.Collectors;
+import java.util.stream.LongStream;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 
@@ -35,7 +38,15 @@ class FibonacciSequenceTest {
      * @see <a href="https://simple.wikipedia.org/wiki/Fibonacci_number">Wikipedia</a>
      */
     static long fibonacciSequence(long sequenceIndex) {
-        throw new IllegalStateException("Not implemented yet");
+        if (sequenceIndex == 0) {
+            return 0;
+        } else if(sequenceIndex == 1) {
+            return 1;
+        }
+        return LongStream.of(sequenceIndex)
+                .map(el -> fibonacciSequence(el - 1) + fibonacciSequence(el - 2))
+                .findFirst()
+                .orElse(0);
     }
 
     @Test
